@@ -29,6 +29,7 @@ export default function Auth() {
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState<any | null>(null)
 
   async function signInWithEmail() {
     setLoading(true)
@@ -85,9 +86,28 @@ export default function Auth() {
       } = await supabase.auth.getSession()
       console.log('session: ' + session + ' user: ' + session?.user)
       setSession(session)
+      const user = await getUser(session?.user?.id)
+      user.avatarUrl =
+        'https://jqgspngcahxhvxmkyuep.supabase.co/storage/v1/object/public/avatars/default-user-icon.jpg'
       setLoading(false)
       setIsUpdating(true)
     }
+  }
+
+  const getUser = async (userId: any) => {
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+
+    if (error) {
+      throw error
+    }
+
+    setUser(users[0])
+    setIsUpdating(true)
+
+    return users[0]
   }
 
   const [register, setRegister] = useState(false)
@@ -188,7 +208,13 @@ export default function Auth() {
               </View>
             </View>
           ) : (
-            <UpdateProfile session={session} />
+            <UpdateProfile
+              user={user}
+              username=""
+              name=""
+              avatarUrl="https://jqgspngcahxhvxmkyuep.supabase.co/storage/v1/object/public/avatars/default-user-icon.jpg"
+              website=""
+            />
           )}
         </>
       )}

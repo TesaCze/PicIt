@@ -10,21 +10,12 @@ import {
   TouchableOpacity
 } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { NavigationContainer } from '@react-navigation/native'
-import {
-  createBottomTabNavigator,
-  BottomTabNavigationOptions
-} from '@react-navigation/bottom-tabs'
-import { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-
-import BottomSheet from '@gorhom/bottom-sheet'
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
 
 import * as ImagePicker from 'expo-image-picker'
 import { decode } from 'base64-arraybuffer'
 
-import { ImagePickerResult, ImagePickerSuccessResult } from 'expo-image-picker'
+import { ImagePickerResult } from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import React from 'react'
 
@@ -41,7 +32,6 @@ export interface UpdateProfileProps {
 const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
   const [image, setImage] = useState<{ uri: string } | null>(null)
   const [imageUrls, setImageUrls] = useState<string[]>([])
-
   const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
@@ -50,18 +40,22 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
   const [hasRegistered, setHasRegistered] = useState(false)
   const [newImagePicked, setNewImagePicked] = useState(false)
 
+  useEffect(() => {
+    fetchData()
+  }, [user])
+
   const fetchData = async () => {
     try {
       if (user) {
-        setUsername(user.username)
-        setName(user.name)
-        setWebsite(user.website)
-        setHasRegistered(user.reg_complete)
-
+        setUsername(user.username || '')
+        setName(user.name || '')
+        setWebsite(user.website || '')
+        setHasRegistered(user.reg_complete || false)
         if (user.avatar_url) {
           setImageUrls([user.avatar_url])
+        } else {
+          setImageUrls([icon])
         }
-        console.log('user:', user)
       }
     } catch (error) {
       console.error('Error getting user: ', error)
@@ -79,21 +73,19 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
 
     if (!result.canceled) {
       setImage({ uri: result.assets[0].uri })
-      console.log('Image picked:', result.assets[0].uri)
       setNewImagePicked(true)
+      await uploadImage(result.assets[0].uri)
     } else {
       console.log('Image pick cancelled')
       setNewImagePicked(false)
     }
     setLoading(false)
-    uploadImage()
   }
 
-  const uploadImage = async () => {
-    if (newImagePicked == false) return
+  const uploadImage = async (uri: string) => {
     setLoading(true)
 
-    if (image) {
+    if (uri) {
       const avatarName = `${user.username}.jpg`
       if (user.avatar_url) {
         const existingFilename = user.avatar_url.split('/').pop() || ''
@@ -108,13 +100,7 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
         }
       }
 
-      const result = await supabase.storage
-        .from('avatars')
-        .getPublicUrl(avatarName)
-      console.log('result:', result.data.publicUrl)
-      setAvatarUrl(result.data.publicUrl)
-
-      const base64 = await FileSystem.readAsStringAsync(image.uri, {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
         encoding: FileSystem.EncodingType.Base64
       })
       if (base64) {
@@ -136,12 +122,13 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
           setAvatarUrl(result.data.publicUrl)
 
           setImageUrls([result.data.publicUrl])
-          const { error } = await supabase.auth.updateUser({
+          const { error: updateUserError } = await supabase.auth.updateUser({
             data: { avatar_url: result.data.publicUrl }
           })
+          fetchData()
 
-          if (error) {
-            console.error('Error updating user profile:', error)
+          if (updateUserError) {
+            console.error('Error updating user profile:', updateUserError)
           } else {
             console.log('User profile updated successfully')
           }
@@ -153,7 +140,7 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
     setLoading(false)
   }
 
-  async function updateProfile({
+  const updateProfile = async ({
     username,
     name,
     website,
@@ -163,9 +150,8 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
     name: string
     website: string
     avatar_url: string
-  }) {
-    username = username.trim()
-    username = username.toLowerCase()
+  }) => {
+    username = username.trim().toLowerCase() // Trim whitespace and convert to lowercase
 
     try {
       setLoading(true)
@@ -198,7 +184,7 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
     fetchData()
   }
 
-  async function finishRegister() {
+  const finishRegister = async () => {
     try {
       setLoading(true)
       const updates = {
@@ -232,11 +218,16 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
       <TouchableOpacity
         style={styles.profilePictureSectionStyle}
         onPress={pickImage}>
-        {user.avatar_url ? (
-          <Image source={{ uri: user.avatar_url }} style={styles.imageStyle} />
+        {user.avatar_url && imageUrls.length >= 0 ? (
+          <Image
+            source={{
+              uri: avatarUrl || user.avatar_url || imageUrls[0] || icon
+            }}
+            style={styles.imageStyle}
+          />
         ) : (
           <View style={styles.placeholderImageStyle}>
-            <Ionicons name="person" size={40} color="#ccc" />
+            <Image source={icon} style={styles.imageStyle} />
           </View>
         )}
       </TouchableOpacity>
@@ -245,7 +236,16 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
       </Text>
       <View style={styles.inputFieldContainer}>
         <Text>Username: </Text>
-        <Text style={styles.usernameStyle}>@{username || ''}</Text>
+        {!hasRegistered ? (
+          <TextInput
+            style={styles.inputStyle}
+            placeholder="Username"
+            value={username}
+            onChangeText={text => setUsername(text)}
+          />
+        ) : (
+          <Text style={styles.usernameStyle}>@{username || ''}</Text>
+        )}
       </View>
 
       <View style={styles.inputFieldContainer}>
@@ -276,15 +276,15 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
             updateProfile({ username, name, website, avatar_url: avatarUrl })
           }
           disabled={loading}
-          color="#007bff" // Bootstrap blue
+          color="#007bff"
         />
 
-        {!user.reg_complete && (
+        {!user.reg_complete && username !== null && name !== null && (
           <Button
             title={loading ? 'Loading ...' : 'Finish Registration'}
             onPress={finishRegister}
             disabled={loading}
-            color="#28a745" // Bootstrap green
+            color="#28a745"
           />
         )}
       </View>

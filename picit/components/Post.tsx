@@ -1,22 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  Dimensions,
-  StyleSheet,
   View,
   Text
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { postStyle } from '../assets/styles/post'
 import { supabase } from '../lib/supabase'
-import { styles } from '../assets/styles/styles'
-import {
-  createBottomTabNavigator,
-  BottomTabNavigationOptions
-} from '@react-navigation/bottom-tabs'
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
+
+const icon = require('../assets/public/default-user-icon.jpg')
 
 function Post({
   post,
@@ -121,15 +115,17 @@ function Post({
             gap: 10,
             alignItems: 'center'
           }}>
-          {user ? (
+          {user.avatar_url ? (
             <Image
               source={{ uri: user.avatar_url }}
               style={{ width: 50, height: 50, borderRadius: 50 }}
             />
           ) : (
-            <ActivityIndicator size="small" color="#0000ff" />
+            <Image
+              source={icon}
+              style={{ width: 50, height: 50, borderRadius: 50 }}
+            />
           )}
-          {isLoading && <ActivityIndicator size="small" color="#0000ff" />}
           <Text style={{ fontSize: 18 }}>{user?.name}</Text>
           <Text style={{ fontSize: 12, color: '#5c5c5c' }}>
             @{user?.username}

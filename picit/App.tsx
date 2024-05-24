@@ -44,7 +44,7 @@ export default function App() {
 
   return (
     <>
-      {session && session.user && isRegistered ? (
+      {session && session.user && isRegistered && isRegistered != null ? (
         <GestureHandlerRootView style={{ flex: 1 }}>
           <MainContainer session={session} key={session.user.id} />
         </GestureHandlerRootView>

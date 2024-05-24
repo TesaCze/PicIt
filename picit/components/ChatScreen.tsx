@@ -15,6 +15,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet'
 import { KeyboardAvoidingView } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons'
+import * as Crypto from 'expo-crypto'
 
 interface Message {
   id: string

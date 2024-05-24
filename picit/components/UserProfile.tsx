@@ -83,15 +83,34 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
       .select('*')
       .eq('user_id', userId)
 
+    console.log('hhfdhs  ', userFollowing)
+
     if (error) {
       throw error
     }
-    setFollowerCount(userFollowing[0].follower_count)
-    setFollowingCount(userFollowing[0].following_count)
+    if (userFollowing.length === 0) {
+      setFollowingCount(0)
+      setFollowerCount(0)
+    } else {
+      setFollowerCount(userFollowing[0].follower_count)
+      setFollowingCount(userFollowing[0].following_count)
+    }
+
     return userFollowing
   }
 
   const followUser = async (userIdToFollow: string, sessionUser: string) => {
+    if (
+      (await supabase
+        .from('following')
+        .select()
+        .eq('user_id', sessionUser)
+        .single()) !== null
+    ) {
+      await supabase.from('following').insert([{ user_id: sessionUser }])
+      console.log('inserted')
+    }
+
     setIsFollowing(true)
     try {
       const { data: userData, error: userError } = await supabase
@@ -215,7 +234,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
       fetchData()
       getUserFollowing(user.id)
     } catch (error) {
-      console.error('Error following user:', error)
+      console.error('Error unfollowing user:', error)
     }
   }
 

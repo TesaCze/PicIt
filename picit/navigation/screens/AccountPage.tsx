@@ -212,12 +212,6 @@ export default function AccountPage({ route }: { route: any }) {
     }
   }
 
-  const [modalVisible, setModalVisible] = useState(false)
-  const [modalImage, setModalImage] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false)
-
   const [refreshing, setRefreshing] = useState(false)
 
   const onRefresh = React.useCallback(() => {
@@ -233,14 +227,6 @@ export default function AccountPage({ route }: { route: any }) {
       }>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
-      ) : isEditingProfile ? (
-        <UpdateProfile
-          user={user}
-          username={user.username}
-          name={user.name}
-          website={user.website}
-          avatarUrl={''}
-        />
       ) : (
         <UserProfile user={user} />
       )}

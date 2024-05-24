@@ -150,7 +150,6 @@ export default function TaskList({ session }: { session: Session }) {
             user_id: session.user.id,
             comment_count: 0,
             task_name: taskToFinish.name,
-            likes_count: 0,
             task_image: result.data.publicUrl,
             task_description: taskToFinish.description,
             created_at: new Date()

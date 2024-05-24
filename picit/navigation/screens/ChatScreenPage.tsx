@@ -61,14 +61,24 @@ export default function ChatApp() {
     } = await supabase.auth.getSession()
     setSession(session)
 
+    if (!session?.user) {
+      console.error('No session found')
+      setIsLoading(false)
+      return
+    }
+
     try {
-      const { data, error } = await supabase.from('conversations').select()
+      const { data, error } = await supabase
+        .from('conversations')
+        .select()
+        .or(`user1_id.eq.${session.user.id},user2_id.eq.${session.user.id}`)
+
       if (error) throw error
 
       if (data.length > 0) {
         const conversation = data[0]
         const otherUserId =
-          conversation.user1_id === session?.user.id
+          conversation.user1_id === session.user.id
             ? conversation.user2_id
             : conversation.user1_id
         if (!otherUserId) throw new Error('Other user ID is missing.')
@@ -80,7 +90,6 @@ export default function ChatApp() {
       setConversations(data)
     } catch (error) {
       console.error('Error fetching conversations or user data:', error)
-      // Consider displaying an error message to the user
     } finally {
       setIsLoading(false)
     }
@@ -166,12 +175,17 @@ export default function ChatApp() {
                     <Text style={{ fontSize: 20 }}>
                       {diffUserUsername || ''}
                     </Text>
-                    <Text>{item.last_message_content || 'nefakaaaa'}</Text>
+                    <Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={{ width: 100 }}>
+                      {item.last_message_content || ''}
+                    </Text>
                   </View>
-                  <Text style={{ marginLeft: 100 }}>
+                  <Text style={{ marginLeft: 50 }}>
                     {moment(item.last_message_timestamp).format(
                       'h:mm a, MMMM D'
-                    )}
+                    ) || ''}
                   </Text>
                 </View>
               </TouchableOpacity>
