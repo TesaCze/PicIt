@@ -232,13 +232,13 @@ export default function AccountPage({ route }: { route: any }) {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }>
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" /> // Loading indicator
+        <ActivityIndicator size="large" color="#0000ff" />
       ) : isEditingProfile ? (
         <UpdateProfile
           user={user}
-          username={''}
-          name={''}
-          website={''}
+          username={user.username}
+          name={user.name}
+          website={user.website}
           avatarUrl={''}
         />
       ) : (
@@ -253,8 +253,16 @@ export default function AccountPage({ route }: { route: any }) {
           tabBarInactiveTintColor: 'gray',
           tabBarIndicatorStyle: { backgroundColor: 'blue' }
         }}>
-        <Tab.Screen name="Finished Posts" component={FinishedPosts} />
-        <Tab.Screen name="Current Tasks" component={CurrentTasks} />
+        <Tab.Screen
+          name="Finished Posts"
+          component={FinishedPosts}
+          initialParams={{ user: userId }}
+        />
+        <Tab.Screen
+          name="Current Tasks"
+          component={CurrentTasks}
+          initialParams={{ user: userId }}
+        />
       </Tab.Navigator>
     </ScrollView>
   )

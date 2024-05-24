@@ -232,12 +232,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
       console.log('conversations:', conversations)
 
       if (conversations) {
-        // If a conversation exists, navigate to it
         console.log('Existing conversation found, navigating to ChatScreen')
         setConversationId(conversations.id)
         setShowModal(true)
       } else {
-        // If no conversation exists, create a new one
         console.log('No existing conversation, creating a new one')
         const { data: newConversation, error: createError } = await supabase
           .from('conversations')
@@ -268,14 +266,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
           .eq('id', user.id)
 
         if (error) throw error
-
         setUsername(user.username)
         setName(user.name)
         setWebsite(user.website)
-        setTaskCount(user.task_count)
         setCompletedTask(user.completed_task)
         setFollowerCount(user.follower_count)
         setFollowingCount(user.following_count)
+
+        const { data: tasks, error: taskError } = await supabase
+          .from('posts')
+          .select('id')
+          .eq('user_id', user.id)
+
+        if (taskError) throw taskError
+        setTaskCount(tasks?.length || 0)
       }
     } catch (error) {
       console.error('Error getting user:', error)
@@ -365,7 +369,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
           <Text style={{ fontSize: 18 }}>{name}</Text>
         </View>
         <View>
-          <Text style={{ fontSize: 16 }}>@{username}</Text>
+          <Text style={{ fontSize: 16, color: '#6c757d' }}>@{username}</Text>
+        </View>
+        <View>
+          <Text style={{ fontSize: 16 }}>{website}</Text>
         </View>
       </View>
       <View
@@ -413,22 +420,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
           <View
             style={{
               display: 'flex',
-              justifyContent: 'center',
               flex: 1
             }}>
-            <View>
-              <Image
-                source={{ uri: avatarUrl }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            </View>
-            <UpdateProfile //fix tuto picovinu, netaha se a zakaz zmenu uzivatelskeho jmena nebo se rozbije cela aplikace banger
+            <UpdateProfile
               user={user}
               username={username}
               name={name}
               website={website}
-              avatarUrl={avatarUrl}
+              avatarUrl={''}
             />
           </View>
         </Modal>

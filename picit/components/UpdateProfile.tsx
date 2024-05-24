@@ -6,7 +6,8 @@ import {
   Image,
   Button,
   Alert,
-  TextInput
+  TextInput,
+  TouchableOpacity
 } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { NavigationContainer } from '@react-navigation/native'
@@ -40,7 +41,6 @@ export interface UpdateProfileProps {
 const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
   const [image, setImage] = useState<{ uri: string } | null>(null)
   const [imageUrls, setImageUrls] = useState<string[]>([])
-  const [pullImg, setPullImg] = useState<string[]>([])
 
   const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState('')
@@ -48,19 +48,7 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [name, setName] = useState('')
   const [hasRegistered, setHasRegistered] = useState(false)
-
-  const getUser = async (userId: string) => {
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-
-    if (error) {
-      throw error
-    }
-
-    return users[0]
-  }
+  const [newImagePicked, setNewImagePicked] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -92,15 +80,19 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
     if (!result.canceled) {
       setImage({ uri: result.assets[0].uri })
       console.log('Image picked:', result.assets[0].uri)
+      setNewImagePicked(true)
     } else {
       console.log('Image pick cancelled')
+      setNewImagePicked(false)
     }
     setLoading(false)
     uploadImage()
   }
 
   const uploadImage = async () => {
+    if (newImagePicked == false) return
     setLoading(true)
+
     if (image) {
       const avatarName = `${user.username}.jpg`
       if (user.avatar_url) {
@@ -183,10 +175,10 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
         id: user.id,
         username,
         name,
-        website,
-        avatar_url: avatarUrl,
+        website: website.trim(),
         updated_at: new Date(),
-        reg_complete: true
+        reg_complete: true,
+        ...(newImagePicked && { avatar_url })
       }
 
       console.log('updates:', updates)
@@ -237,48 +229,70 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
   return (
     <View style={styles.containerStyle}>
       <Text style={styles.headingStyle}>Finish setting up your profile</Text>
-      <View style={styles.profilePictureSectionStyle}>
+      <TouchableOpacity
+        style={styles.profilePictureSectionStyle}
+        onPress={pickImage}>
         {user.avatar_url ? (
           <Image source={{ uri: user.avatar_url }} style={styles.imageStyle} />
         ) : (
           <View style={styles.placeholderImageStyle}>
-            <Image source={icon} style={styles.imageStyle} />
+            <Ionicons name="person" size={40} color="#ccc" />
           </View>
         )}
+      </TouchableOpacity>
+      <Text style={styles.userImageText}>
+        Tap on the picture to change your profile avatar
+      </Text>
+      <View style={styles.inputFieldContainer}>
+        <Text>Username: </Text>
+        <Text style={styles.usernameStyle}>@{username || ''}</Text>
       </View>
-      <View style={styles.inputFieldStyle}>
-        <TextInput placeholder="Email" value={user?.email} />
-      </View>
-      <View style={styles.inputFieldStyle}>
+
+      <View style={styles.inputFieldContainer}>
+        <Text>Full name: </Text>
         <TextInput
-          placeholder="Username"
-          value={username || ''}
-          onChangeText={text => setUsername(text)}
+          style={styles.inputStyle}
+          placeholder="Name"
+          value={name}
+          onChangeText={text => setName(text)}
+        />
+      </View>
+
+      <View
+        style={[styles.inputFieldContainer, styles.descriptionInputContainer]}>
+        <Text>Description: </Text>
+        <TextInput
+          style={[styles.inputStyle, styles.descriptionInput]}
+          placeholder="Bio"
+          value={website}
+          onChangeText={text => setWebsite(text)}
+          multiline
         />
       </View>
       <View style={styles.buttonContainerStyle}>
-        <Button
-          title={loading ? 'Loading ...' : 'Pick Image'}
-          onPress={pickImage}
-          disabled={loading}
-        />
         <Button
           title={loading ? 'Loading ...' : 'Update'}
           onPress={() =>
             updateProfile({ username, name, website, avatar_url: avatarUrl })
           }
           disabled={loading}
+          color="#007bff" // Bootstrap blue
         />
-        <Button title="Sign out" onPress={() => supabase.auth.signOut()} />
 
-        {user.reg_complete ? null : (
+        {!user.reg_complete && (
           <Button
             title={loading ? 'Loading ...' : 'Finish Registration'}
-            onPress={() => finishRegister()}
+            onPress={finishRegister}
             disabled={loading}
+            color="#28a745" // Bootstrap green
           />
         )}
       </View>
+      <Button
+        title="Sign out"
+        onPress={() => supabase.auth.signOut()}
+        color="#dc3545"
+      />
     </View>
   )
 }
@@ -315,9 +329,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5', // Light gray background
+    backgroundColor: '#f5f5f5',
     padding: 20,
-    borderRadius: 5 // Rounded corners for a polished look
+    borderRadius: 5
   },
   headingStyle: {
     fontSize: 24,
@@ -327,10 +341,10 @@ const styles = StyleSheet.create({
   profilePictureSectionStyle: {
     width: 100,
     height: 100,
-    borderRadius: 50, // Circular profile picture
-    overflow: 'hidden', // Prevent image overflow
+    borderRadius: 50,
+    overflow: 'hidden',
     marginBottom: 10,
-    borderColor: '#ddd', // Light border
+    borderColor: '#ddd',
     borderWidth: 1
   },
   imageStyle: {
@@ -338,37 +352,55 @@ const styles = StyleSheet.create({
     height: '100%'
   },
   placeholderImageStyle: {
-    flex: 1, // Take up all available space within the profilePictureSection
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
   },
   placeholderTextStyle: {
-    color: '#aaa' // Light gray text for placeholder
+    color: '#aaa'
   },
-  userIdStyle: {
+  userImageText: {
     fontSize: 14,
-    color: '#888', // Lighter color for less emphasis
-    marginBottom: 10
+    color: '#888',
+    marginBottom: 20,
+    width: '60%',
+    textAlign: 'center'
   },
   inputFieldStyle: {
     marginBottom: 10
   },
-  inputStyle: {
-    backgroundColor: '#fff', // White background
-    borderColor: '#ddd', // Light border
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 5 // Rounded corners for input fields
+  usernameStyle: {
+    fontSize: 16,
+    color: '#6c757d',
+    marginBottom: 10
   },
   buttonContainerStyle: {
-    flexDirection: 'row', // Arrange buttons horizontally
-    justifyContent: 'space-around', // Distribute buttons evenly
     marginTop: 20
   },
   buttonStyle: {
-    padding: 10,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 10
+  },
+  inputFieldContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    width: '100%'
+  },
+  descriptionInputContainer: {
+    alignItems: 'flex-start' // Align description text to the top left
+  },
+  inputStyle: {
+    flex: 1, // Allow input to take up remaining space
+    backgroundColor: '#fff',
+    borderColor: '#ced4da',
+    borderWidth: 1,
+    padding: 15,
     borderRadius: 5,
-    backgroundColor: '#007bff',
-    color: '#fff'
+    minHeight: 40 // Set a minimum height for consistency
+  },
+  descriptionInput: {
+    minHeight: 80 // Make the description input larger
   }
 })

@@ -110,19 +110,19 @@ export default function TaskList({ session }: { session: Session }) {
 
         if (error) {
           console.error('Error uploading image:', error)
-          setPostCanceled(true) // Set only on upload error
+          setPostCanceled(true)
         }
       } catch (error) {
         console.error('Error uploading image:', error)
-        setPostCanceled(true) // Set only on upload error
+        setPostCanceled(true)
       }
     } else {
       console.error('Error reading image data')
-      setPostCanceled(true) // Set for any error reading image data
+      setPostCanceled(true)
     }
   }
 
-  const [taskToFinish, setTaskToFinish] = useState<any>(null) // Store task data to finish later
+  const [taskToFinish, setTaskToFinish] = useState<any>(null)
 
   const finishTask = (task: { name: any; description: any }) => {
     setTaskToFinish(task)
@@ -219,21 +219,51 @@ export default function TaskList({ session }: { session: Session }) {
         }>
         {tasks &&
           tasks.map((task, index) => (
-            <View key={index} style={styles.taskItem}>
+            <View
+              key={index}
+              style={[
+                styles.taskItem,
+                {
+                  backgroundColor: moment(task.deadline).isBefore(moment())
+                    ? '#f56e6e'
+                    : '#fff'
+                }
+              ]}>
               <View style={styles.taskInfo}>
                 <Text style={styles.taskName}>{task.name}</Text>
-                <Text style={styles.taskDescription}>{task.description}</Text>
+                <Text
+                  style={[
+                    styles.taskDescription,
+                    {
+                      color: moment(task.deadline).isBefore(moment())
+                        ? '#fff'
+                        : '#555'
+                    }
+                  ]}>
+                  {task.description}
+                </Text>
                 {task.has_deadline && (
-                  <Text style={styles.taskDeadline}>
+                  <Text
+                    style={[
+                      styles.taskDeadline,
+                      {
+                        color: moment(task.deadline).isBefore(moment())
+                          ? '#dbd9d9'
+                          : '#888'
+                      }
+                    ]}>
                     Deadline: {moment(task.deadline).fromNow()}
                   </Text>
                 )}
               </View>
               <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={() => deleteTask(task.id)}>
+                <TouchableOpacity
+                  style={styles.buttonIcon}
+                  onPress={() => deleteTask(task.id)}>
                   <Ionicons name="trash-outline" size={24} color="red" />
                 </TouchableOpacity>
                 <TouchableOpacity
+                  style={styles.buttonIcon}
                   onPress={() => {
                     finishTask(task)
                     setPostCanceled(true)
@@ -295,7 +325,6 @@ const styles = StyleSheet.create({
     marginBottom: 100
   },
   taskItem: {
-    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
@@ -318,15 +347,18 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
   taskDescription: {
-    fontSize: 14,
-    color: '#555'
+    fontSize: 14
   },
   taskDeadline: {
-    fontSize: 12,
-    color: '#888'
+    fontSize: 12
   },
   buttonContainer: {
     flexDirection: 'row',
     gap: 10
+  },
+  buttonIcon: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 5
   }
 })

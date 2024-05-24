@@ -5,15 +5,24 @@ import { View, Text, Image } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { ScrollView } from 'react-native-gesture-handler'
 
-function FinishedPosts() {
+interface UserIdProps {
+  route: any
+}
+
+const FinishedPosts: React.FC<UserIdProps> = ({ route }) => {
+  const { user } = route.params
   const [posts, setPosts] = useState<any[]>([])
 
   useEffect(() => {
     getPosts()
+    console.log('id: ', user)
   }, [])
 
   const getPosts = async () => {
-    const { data, error } = await supabase.from('posts').select('*')
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('user_id', user)
     if (error) {
       throw error
     }
