@@ -14,11 +14,8 @@ import { supabase } from '../../lib/supabase'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import ChatScreen from '../../components/ChatScreen'
 import { Ionicons } from '@expo/vector-icons'
-import { styles } from '../../assets/styles/styles'
-import SearchPage from './SearchPage'
-import { Moment } from 'moment'
 import moment from 'moment'
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
+import { decrypt } from '../../components/Cypher'
 
 interface Conversation {
   id: string
@@ -42,7 +39,6 @@ export default function ChatApp() {
     string | null
   >(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
-  const [messages, setMessages] = useState<Message[]>([])
   const [session, setSession] = useState<any | null>(null)
   const [diffUserUsername, setDiffUserUsername] = useState<string | ''>('')
   const [diffUserAvatarUrl, setDiffUserAvatarUrl] = useState<string | ''>('')
@@ -86,7 +82,7 @@ export default function ChatApp() {
         const userData = await getUserData(otherUserId)
         setOtherUserData(userData)
       }
-
+      data[0].last_message_content = decrypt(data[0].last_message_content)
       setConversations(data)
     } catch (error) {
       console.error('Error fetching conversations or user data:', error)

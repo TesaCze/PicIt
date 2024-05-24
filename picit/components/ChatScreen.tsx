@@ -15,7 +15,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet'
 import { KeyboardAvoidingView } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons'
-import * as Crypto from 'expo-crypto'
+import { decrypt, encrypt } from './Cypher'
 
 interface Message {
   id: string
@@ -55,10 +55,9 @@ function ChatScreen({ route }: { route: any }) {
             'postgres_changes',
             { event: 'INSERT', schema: 'public', table: 'messages' },
             (payload: any) => {
-              setMessages(prevMessages => [
-                ...prevMessages,
-                payload.new as Message
-              ])
+              const newMessage = payload.new as Message
+              newMessage.content = decrypt(newMessage.content)
+              setMessages(prevMessages => [...prevMessages, newMessage])
             }
           )
           .subscribe()
@@ -108,7 +107,6 @@ function ChatScreen({ route }: { route: any }) {
       .single()
 
     if (conversationError || !conversationData) {
-      // Check for error or null data
       console.error(
         'Error fetching conversation data:',
         conversationError || 'Conversation not found'
@@ -130,8 +128,14 @@ function ChatScreen({ route }: { route: any }) {
       .eq('conversation_id', conversationId)
       .order('timestamp', { ascending: true })
 
-    if (error) console.error('Error fetching messages:', error)
-    else setMessages(data as Message[])
+    if (error) {
+      console.error('Error fetching messages:', error)
+    } else {
+      const decryptedMessages = data.map((message: any) => {
+        return { ...message, content: decrypt(message.content) }
+      })
+      setMessages(decryptedMessages as Message[])
+    }
     setIsLoadingMessages(false)
   }
 
@@ -144,11 +148,13 @@ function ChatScreen({ route }: { route: any }) {
         return
       }
 
+      const encryptedMessage = encrypt(newMessage)
+
       const { error: messageError } = await supabase.from('messages').insert([
         {
           sender_id: currentUser.id,
           recipient_id: recipientId,
-          content: newMessage,
+          content: encryptedMessage,
           conversation_id: conversationId,
           timestamp: new Date().toISOString()
         }
@@ -162,7 +168,7 @@ function ChatScreen({ route }: { route: any }) {
       await supabase
         .from('conversations')
         .update({
-          last_message_content: newMessage,
+          last_message_content: encryptedMessage,
           last_message_timestamp: new Date().toISOString()
         })
         .eq('id', conversationId)
@@ -171,6 +177,7 @@ function ChatScreen({ route }: { route: any }) {
       console.error('Error sending message:', error)
     }
   }
+
   return (
     <View>
       <View
