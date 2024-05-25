@@ -46,7 +46,7 @@ export default function MainContainer({ session }: { session: Session }) {
     <NavigationContainer>
       <Tab.Navigator
         initialRouteName={homeName}
-        screenOptions={({ route }): BottomTabNavigationOptions => ({
+        screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName: any
             if (route.name === homeName) {
@@ -61,6 +61,31 @@ export default function MainContainer({ session }: { session: Session }) {
               iconName = focused ? 'person' : 'person-outline'
             }
             return <Ionicons name={iconName} size={size} color={color} />
+          },
+          tabBarActiveTintColor: '#2f95dc',
+          tabBarInactiveTintColor: 'gray',
+          tabBarStyle: {
+            backgroundColor: '#f5f5f5',
+            borderTopWidth: 0,
+            height: 80,
+            paddingBottom: 30,
+            paddingTop: 5,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.3,
+            shadowRadius: 1,
+            elevation: 5
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '600'
+          },
+          headerStyle: {
+            backgroundColor: '#2f95dc'
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold'
           }
         })}>
         <Tab.Screen
@@ -77,16 +102,6 @@ export default function MainContainer({ session }: { session: Session }) {
           )}
         </Tab.Screen>
       </Tab.Navigator>
-      <BottomSheet ref={bottomSheetRef} index={0} snapPoints={['1%', '110%']}>
-        <Text>Bottom Sheet Content</Text>
-        <UpdateProfile
-          user={user}
-          username={''}
-          name={''}
-          website={''}
-          avatarUrl={''}
-        />
-      </BottomSheet>
     </NavigationContainer>
   )
 }

@@ -87,20 +87,24 @@ function Comments({ post }: { post: any }) {
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.flatListContent}
         ListHeaderComponent={<Text style={styles.commentHeader}>Comments</Text>}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.commentInput}
-          placeholder="Add a comment..."
-          value={newComment}
-          onChangeText={setNewComment}
-          multiline={true}
-        />
+        ListFooterComponent={
+          <>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Add a comment..."
+                value={newComment}
+                onChangeText={setNewComment}
+                multiline={true}
+              />
 
-        <TouchableOpacity onPress={handleAddComment}>
-          <Ionicons name={'send'} size={25} />
-        </TouchableOpacity>
-      </View>
+              <TouchableOpacity onPress={handleAddComment}>
+                <Ionicons name={'send'} size={25} />
+              </TouchableOpacity>
+            </View>
+          </>
+        }
+      />
     </View>
   )
 }
