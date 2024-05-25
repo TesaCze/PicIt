@@ -4,20 +4,24 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   View,
-  Text
+  Text,
+  Modal
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { postStyle } from '../assets/styles/post'
 import { supabase } from '../lib/supabase'
+import AccountPage from '../navigation/screens/AccountPage'
 
 const icon = require('../assets/public/default-user-icon.jpg')
 
 function Post({
   post,
-  openComments
+  openComments,
+  openAccount
 }: {
   post: any
   openComments: (post: any) => void
+  openAccount: (userId: string) => void
 }) {
   const { user } = post
   const [isLoading, setIsLoading] = useState(false)
@@ -107,30 +111,32 @@ function Post({
   return (
     <>
       <View style={postStyle.post}>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            marginBottom: 15,
-            gap: 10,
-            alignItems: 'center'
-          }}>
-          {user.avatar_url ? (
-            <Image
-              source={{ uri: user.avatar_url }}
-              style={{ width: 50, height: 50, borderRadius: 50 }}
-            />
-          ) : (
-            <Image
-              source={icon}
-              style={{ width: 50, height: 50, borderRadius: 50 }}
-            />
-          )}
-          <Text style={{ fontSize: 18 }}>{user?.name}</Text>
-          <Text style={{ fontSize: 12, color: '#5c5c5c' }}>
-            @{user?.username}
-          </Text>
-        </View>
+        <TouchableOpacity onPress={() => openAccount(post)}>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              marginBottom: 15,
+              gap: 10,
+              alignItems: 'center'
+            }}>
+            {user.avatar_url ? (
+              <Image
+                source={{ uri: user.avatar_url }}
+                style={{ width: 50, height: 50, borderRadius: 50 }}
+              />
+            ) : (
+              <Image
+                source={icon}
+                style={{ width: 50, height: 50, borderRadius: 50 }}
+              />
+            )}
+            <Text style={{ fontSize: 18 }}>{user?.name}</Text>
+            <Text style={{ fontSize: 12, color: '#5c5c5c' }}>
+              @{user?.username}
+            </Text>
+          </View>
+        </TouchableOpacity>
         <View>
           <Text>{post?.task_name}</Text>
           <Text style={{ marginBottom: 10 }}>{post?.task_description}</Text>

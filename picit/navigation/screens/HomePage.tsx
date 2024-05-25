@@ -20,6 +20,8 @@ import BottomSheet, {
   SCREEN_HEIGHT
 } from '@gorhom/bottom-sheet'
 import Comments from '../../components/Comments'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import AccountPage from './AccountPage'
 
 function HomePage({ route }: { route: any }) {
   // Change route type to any
@@ -143,6 +145,20 @@ function HomePage({ route }: { route: any }) {
     console.log(post.id)
   }
 
+  const [selectedUser, setSelectedUser] = useState<any | null>(null)
+  const [userOpened, setUserOpened] = useState(false)
+  const openAccount = (user: any) => {
+    if (user) {
+      console.log('user:', user.user_id)
+      setSelectedUser(user.user_id)
+      console.log('selectedUser:', selectedUser)
+      console.log(user.id)
+      setUserOpened(true)
+    } else {
+      console.error('No user to open')
+    }
+  }
+
   const bottomHandle = () => (
     <View
       style={{
@@ -170,7 +186,12 @@ function HomePage({ route }: { route: any }) {
           </View>
         ) : (
           pullImg.map((post, index) => (
-            <Post post={post} key={index} openComments={openComments} />
+            <Post
+              post={post}
+              key={index}
+              openComments={openComments}
+              openAccount={openAccount}
+            />
           ))
         )}
       </ScrollView>
@@ -207,6 +228,28 @@ function HomePage({ route }: { route: any }) {
           <Comments post={selectedPost} />
         </BottomSheetScrollView>
       </BottomSheet>
+
+      {userOpened && (
+        <Modal>
+          <View style={{ position: 'absolute', top: 50, left: 10, zIndex: 10 }}>
+            <Ionicons
+              name="close"
+              size={35}
+              onPress={() => setUserOpened(false)}
+            />
+          </View>
+          <View
+            style={{
+              alignContent: 'center',
+              display: 'flex',
+              justifyContent: 'center',
+              flex: 1,
+              marginVertical: 100
+            }}>
+            <AccountPage route={{ params: { userId: selectedUser } }} />
+          </View>
+        </Modal>
+      )}
     </View>
   )
 }

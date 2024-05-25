@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     flexGrow: 1,
-    paddingBottom: 60 // Adjust to accommodate the input area
+    paddingBottom: 60
   },
   commentHeader: {
     textAlign: 'center',

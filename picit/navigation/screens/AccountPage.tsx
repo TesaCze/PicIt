@@ -25,7 +25,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { ImagePickerResult, ImagePickerSuccessResult } from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import React from 'react'
-import BottomSheet, { SCREEN_HEIGHT } from '@gorhom/bottom-sheet'
+import { SCREEN_HEIGHT } from '@gorhom/bottom-sheet'
 import UpdateProfile from '../../components/UpdateProfile'
 import TaskList from '../../components/TaskList'
 import UserProfile from '../../components/UserProfile'
