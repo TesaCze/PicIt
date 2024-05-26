@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   StyleSheet,
   Text,
@@ -168,8 +168,6 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({
         reg_complete: true,
         ...(newImagePicked && { avatar_url })
       }
-
-      console.log('updates:', updates)
 
       const { error } = await supabase.from('users').upsert(updates)
 

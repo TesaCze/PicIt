@@ -67,13 +67,9 @@ export default function TaskList({ session }: { session: Session }) {
         .select('*')
         .eq('user_id', session?.user.id)
         .eq('is_completed', false)
-      console.log('Data:', data)
       setTasks(data)
       if (error) {
         throw error
-      }
-      if (data) {
-        console.log('Tasks:', data)
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -162,7 +158,7 @@ export default function TaskList({ session }: { session: Session }) {
             console.log('Post inserted successfully')
           }
         } catch (error) {
-          console.error('Error in finishPendingTask:', error)
+          console.error('Error:', error)
         } finally {
           setTaskImage('')
           setIsCameraOpen(false)
@@ -184,9 +180,6 @@ export default function TaskList({ session }: { session: Session }) {
       if (error) {
         throw error
       }
-      if (data) {
-        console.log('Task deleted:', data)
-      }
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert(error.message)
@@ -200,7 +193,6 @@ export default function TaskList({ session }: { session: Session }) {
   const onRefresh = React.useCallback(() => {
     setRefreshing(true)
     getTasks().then(() => setRefreshing(false))
-    console.log(tasks)
   }, [])
 
   return (

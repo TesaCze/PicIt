@@ -28,7 +28,7 @@ function Post({
   const [likeCount, setLikeCount] = useState(0)
   const [commentCount, setCommentCount] = useState(0)
   useEffect(() => {
-    const getSessionAndFetchLikeStatus = async () => {
+    const getSessionAndLikes = async () => {
       try {
         const {
           data: { session }
@@ -69,7 +69,7 @@ function Post({
       }
     }
 
-    getSessionAndFetchLikeStatus()
+    getSessionAndLikes()
   }, [post.id])
 
   const toggleLike = async () => {

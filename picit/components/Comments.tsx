@@ -34,7 +34,7 @@ function Comments({ post }: { post: any }) {
     fetchSessionAndComments()
   }, [post?.id])
 
-  const handleAddComment = async () => {
+  const addComment = async () => {
     if (newComment.trim() === '') return
     try {
       const { error } = await supabase.from('comments').insert({
@@ -97,7 +97,7 @@ function Comments({ post }: { post: any }) {
             multiline={true}
           />
 
-          <TouchableOpacity onPress={handleAddComment}>
+          <TouchableOpacity onPress={addComment}>
             <Ionicons name={'send'} size={25} />
           </TouchableOpacity>
         </View>

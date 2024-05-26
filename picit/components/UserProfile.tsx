@@ -80,8 +80,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
       .select('*')
       .eq('user_id', userId)
 
-    console.log('hhfdhs  ', userFollowing)
-
     if (error) {
       throw error
     }
@@ -105,7 +103,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
         .single()) !== null
     ) {
       await supabase.from('following').insert([{ user_id: sessionUser }])
-      console.log('inserted')
     }
 
     setIsFollowing(true)
@@ -140,8 +137,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
         .select('following_count')
         .eq('user_id', sessionUser)
         .single()
-
-      console.log(followingData)
 
       const currentFollowingCount = followingData?.following_count || 0
 
@@ -185,8 +180,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
 
       const followedAccounts = userData?.followed_accounts || []
       const followingAccounts = userData?.following_accounts || []
-      console.log(followedAccounts)
-      console.log(followingAccounts)
       followedAccounts.splice(followedAccounts.indexOf(userIdToFollow), 1)
       followingAccounts.splice(followedAccounts.indexOf(sessionUser), 1)
 
@@ -205,8 +198,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
         .select('following_count')
         .eq('user_id', sessionUser)
         .single()
-
-      console.log(followingData)
 
       const currentFollowingCount = followingData?.following_count || 0
 
@@ -245,14 +236,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
         .or(`user1_id.eq.${currentUser},user2_id.eq.${currentUser}`)
         .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
         .single()
-      console.log('conversations:', conversations)
 
       if (conversations) {
-        console.log('Existing conversation found, navigating to ChatScreen')
         setConversationId(conversations.id)
         setShowModal(true)
       } else {
-        console.log('No existing conversation, creating a new one')
         const { data: newConversation, error: createError } = await supabase
           .from('conversations')
           .insert([{ user1_id: currentUser, user2_id: user.id }])

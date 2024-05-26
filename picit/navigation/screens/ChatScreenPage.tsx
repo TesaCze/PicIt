@@ -22,17 +22,22 @@ interface Conversation {
   user2_id: string
 }
 
+interface UserData {
+  id: string
+  username: string
+  avatar_url: string
+}
+
 export default function ChatApp() {
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [session, setSession] = useState<any | null>(null)
-  const [diffUserUsername, setDiffUserUsername] = useState<string | ''>('')
-  const [diffUserAvatarUrl, setDiffUserAvatarUrl] = useState<string | ''>('')
-
   const [isLoading, setIsLoading] = useState(true)
-  const [otherUserData, setOtherUserData] = useState<any>(null)
+  const [userDataMap, setUserDataMap] = useState<{ [key: string]: UserData }>(
+    {}
+  )
 
   useEffect(() => {
     fetchSessionAndConversations()
@@ -60,19 +65,32 @@ export default function ChatApp() {
       if (error) throw error
 
       if (data.length > 0) {
-        const conversation = data[0]
-        const otherUserId =
-          conversation.user1_id === session.user.id
-            ? conversation.user2_id
-            : conversation.user1_id
-        if (!otherUserId) throw new Error('Other user ID is missing.')
+        const userDataPromises = data.map(async conversation => {
+          const otherUserId =
+            conversation.user1_id === session.user.id
+              ? conversation.user2_id
+              : conversation.user1_id
+          const userData = await getUserData(otherUserId)
+          return { userId: otherUserId, userData }
+        })
 
-        const userData = await getUserData(otherUserId)
-        setOtherUserData(userData)
+        const userDataArray = await Promise.all(userDataPromises)
+        const userDataMap = userDataArray.reduce(
+          (acc, { userId, userData }) => {
+            acc[userId] = userData
+            return acc
+          },
+          {} as { [key: string]: UserData }
+        )
+
+        setUserDataMap(userDataMap)
       }
       if (data.length > 0) {
-        data[0].last_message_content = decrypt(data[0].last_message_content)
-        setConversations(data)
+        const decryptedData = data.map(item => {
+          item.last_message_content = decrypt(item.last_message_content)
+          return item
+        })
+        setConversations(decryptedData)
       }
     } catch (error) {
       console.error('Error fetching conversations or user data:', error)
@@ -91,11 +109,10 @@ export default function ChatApp() {
       .select()
       .eq('id', userId)
       .single()
-    setDiffUserAvatarUrl(data?.avatar_url)
-    setDiffUserUsername(data?.username)
 
     if (error) {
       console.error('Error fetching user data:', error)
+      return null
     } else {
       return data
     }
@@ -128,57 +145,59 @@ export default function ChatApp() {
           />
         </>
       ) : (
-        <ScrollView
-          contentContainerStyle={{
-            height: '100%',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: 10
-          }}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }>
+        <View>
           <FlatList
             data={conversations}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => handleConversationPress(item.id)}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 15,
-                    marginVertical: 10,
-                    marginHorizontal: 20,
-                    flex: 0.8,
-                    width: '90%'
-                  }}>
-                  <Image
-                    source={{ uri: diffUserAvatarUrl }}
-                    style={{ width: 65, height: 65, borderRadius: 50 }}
-                  />
-                  <View>
-                    <Text style={{ fontSize: 20 }}>
-                      {diffUserUsername || ''}
-                    </Text>
-                    <Text
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                      style={{ width: 100 }}>
-                      {item.last_message_content || ''}
+            renderItem={({ item }) => {
+              const otherUserId =
+                item.user1_id === session.user.id
+                  ? item.user2_id
+                  : item.user1_id
+              const otherUserData = userDataMap[otherUserId] || {}
+
+              return (
+                <TouchableOpacity
+                  onPress={() => handleConversationPress(item.id)}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 15,
+                      marginVertical: 10,
+                      marginHorizontal: 20,
+                      flex: 0.8,
+                      width: '90%'
+                    }}>
+                    <Image
+                      source={{ uri: otherUserData.avatar_url }}
+                      style={{ width: 65, height: 65, borderRadius: 50 }}
+                    />
+                    <View>
+                      <Text style={{ fontSize: 20 }}>
+                        {otherUserData.username || ''}
+                      </Text>
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{ width: 100 }}>
+                        {item.last_message_content || ''}
+                      </Text>
+                    </View>
+                    <Text style={{ marginLeft: 50 }}>
+                      {moment(item.last_message_timestamp).format(
+                        'h:mm a, MMMM D'
+                      ) || ''}
                     </Text>
                   </View>
-                  <Text style={{ marginLeft: 50 }}>
-                    {moment(item.last_message_timestamp).format(
-                      'h:mm a, MMMM D'
-                    ) || ''}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
+                </TouchableOpacity>
+              )
+            }}
             keyExtractor={item => item.id}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           />
-        </ScrollView>
+        </View>
       )}
     </View>
   )

@@ -33,13 +33,11 @@ export default function Auth({
 
   async function signInWithEmail() {
     setLoading(true)
-    console.log('signing in')
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
-      console.log(data)
       if (error) throw error
 
       setSession(data.session)
@@ -72,19 +70,16 @@ export default function Auth({
       })
 
       if (error) {
-        console.log(error)
         Alert.alert(error.message)
       }
       if (!session)
         Alert.alert('Please check your inbox for email verification!')
     } catch (error) {
-      console.log(error)
       Alert.alert('An unexpected error occurred.')
     } finally {
       const {
         data: { session }
       } = await supabase.auth.getSession()
-      console.log('session: ' + session + ' user: ' + session?.user)
       setSession(session)
       const user = await getUser(session?.user?.id)
       user.avatarUrl =

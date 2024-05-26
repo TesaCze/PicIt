@@ -14,10 +14,10 @@ const CurrentTasks: React.FC<UserIdProps> = ({ route }) => {
   const [posts, setPosts] = useState<any[]>([])
 
   useEffect(() => {
-    getPosts()
+    getTasks()
   }, [])
 
-  const getPosts = async () => {
+  const getTasks = async () => {
     const { data, error } = await supabase
       .from('tasks')
       .select()

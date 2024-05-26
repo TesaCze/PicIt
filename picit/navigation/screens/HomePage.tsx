@@ -41,7 +41,6 @@ function HomePage({ route }: { route: any }) {
         .select(`username, website, avatar_url, name`)
         .eq('id', session?.user.id)
         .single()
-      console.log('data:', data)
 
       if (error && status !== 406) {
         throw error
@@ -104,18 +103,13 @@ function HomePage({ route }: { route: any }) {
   const openComments = (post: any) => {
     setSelectedPost(post)
     bottomSheetRef.current?.snapToIndex(0)
-    console.log('selectedPost:', selectedPost)
-    console.log(post.id)
   }
 
   const [selectedUser, setSelectedUser] = useState<any | null>(null)
   const [userOpened, setUserOpened] = useState(false)
   const openAccount = (user: any) => {
     if (user) {
-      console.log('user:', user.user_id)
       setSelectedUser(user.user_id)
-      console.log('selectedUser:', selectedUser)
-      console.log(user.id)
       setUserOpened(true)
     } else {
       console.error('No user to open')
@@ -164,10 +158,9 @@ function HomePage({ route }: { route: any }) {
         snapPoints={['50%', '100%']}
         handleComponent={bottomHandle}
         enablePanDownToClose={true}>
-        <BottomSheetScrollView
-          contentContainerStyle={styles.bottomSheetContent}>
+        <View style={styles.bottomSheetContent}>
           <Comments post={selectedPost} />
-        </BottomSheetScrollView>
+        </View>
       </BottomSheet>
 
       {userOpened && (
