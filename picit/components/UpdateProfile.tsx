@@ -9,7 +9,6 @@ import {
   TextInput,
   TouchableOpacity
 } from 'react-native'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import { supabase } from '../lib/supabase'
 
 import * as ImagePicker from 'expo-image-picker'
@@ -27,9 +26,13 @@ export interface UpdateProfileProps {
   name: string
   website: string
   avatarUrl: string
+  onRegistrationComplete: () => void
 }
 
-const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
+const UpdateProfile: React.FC<UpdateProfileProps> = ({
+  user,
+  onRegistrationComplete
+}) => {
   const [image, setImage] = useState<{ uri: string } | null>(null)
   const [imageUrls, setImageUrls] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
@@ -151,11 +154,10 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
     website: string
     avatar_url: string
   }) => {
-    username = username.trim().toLowerCase() // Trim whitespace and convert to lowercase
-
     try {
       setLoading(true)
       if (!user) throw new Error('No user on the session!')
+      username = username.trim().toLowerCase() // fix nekdy u registrace se rozbije
 
       const updates = {
         id: user.id,
@@ -194,12 +196,15 @@ const UpdateProfile: React.FC<UpdateProfileProps> = ({ user }) => {
       const { error } = await supabase.from('users').upsert(updates)
       if (error) {
         throw error
+      } else {
+        onRegistrationComplete()
       }
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert(error.message)
       }
     } finally {
+      onRegistrationComplete()
       setLoading(false)
     }
     fetchData()

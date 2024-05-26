@@ -10,10 +10,7 @@ import {
 } from 'react-native'
 import { supabase } from '../lib/supabase'
 import React from 'react'
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
-import SearchPage from '../navigation/screens/SearchPage'
 import UpdateProfile from './UpdateProfile'
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet'
 import { Ionicons } from '@expo/vector-icons'
 import ChatScreen from './ChatScreen'
 
@@ -447,6 +444,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
               name={name}
               website={website}
               avatarUrl={''}
+              onRegistrationComplete={() => null}
             />
           </View>
         </Modal>
@@ -487,9 +485,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5', // Light gray background
+    backgroundColor: '#f5f5f5',
     padding: 10,
-    borderRadius: 5 // Rounded corners for a polished look
+    borderRadius: 5
   },
   headingStyle: {
     fontSize: 24,
@@ -499,9 +497,9 @@ const styles = StyleSheet.create({
   profilePictureSectionStyle: {
     width: 90,
     height: 90,
-    borderRadius: 60, // Circular profile picture
-    overflow: 'hidden', // Prevent image overflow
-    borderColor: '#ddd', // Light border
+    borderRadius: 60,
+    overflow: 'hidden',
+    borderColor: '#ddd',
     borderWidth: 1,
     display: 'flex'
   },
@@ -510,28 +508,28 @@ const styles = StyleSheet.create({
     height: '100%'
   },
   placeholderImageStyle: {
-    flex: 1, // Take up all available space within the profilePictureSection
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
   },
   placeholderTextStyle: {
-    color: '#aaa' // Light gray text for placeholder
+    color: '#aaa'
   },
   userIdStyle: {
     fontSize: 14,
-    color: '#888', // Lighter color for less emphasis
+    color: '#888',
     marginBottom: 10
   },
   inputStyle: {
-    backgroundColor: '#fff', // White background
-    borderColor: '#ddd', // Light border
+    backgroundColor: '#fff',
+    borderColor: '#ddd',
     borderWidth: 1,
     padding: 10,
-    borderRadius: 5 // Rounded corners for input fields
+    borderRadius: 5
   },
   buttonContainerStyle: {
-    flexDirection: 'row', // Arrange buttons horizontally
-    justifyContent: 'space-around', // Distribute buttons evenly
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     marginTop: 20
   },
   buttonStyle: {

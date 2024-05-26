@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Alert,
   StyleSheet,
@@ -20,11 +20,11 @@ AppState.addEventListener('change', state => {
   }
 })
 
-type MainContainerProps = {
-  session: (session: boolean) => void
-}
-
-export default function Auth() {
+export default function Auth({
+  onRegistrationComplete
+}: {
+  onRegistrationComplete: () => void
+}) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
@@ -89,6 +89,7 @@ export default function Auth() {
       const user = await getUser(session?.user?.id)
       user.avatarUrl =
         'https://jqgspngcahxhvxmkyuep.supabase.co/storage/v1/object/public/avatars/default-user-icon.jpg'
+
       setLoading(false)
       setIsUpdating(true)
     }
@@ -214,6 +215,7 @@ export default function Auth() {
               name=""
               avatarUrl="https://jqgspngcahxhvxmkyuep.supabase.co/storage/v1/object/public/avatars/default-user-icon.jpg"
               website=""
+              onRegistrationComplete={onRegistrationComplete}
             />
           )}
         </>

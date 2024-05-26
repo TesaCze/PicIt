@@ -4,9 +4,6 @@ import {
   Text,
   FlatList,
   Image,
-  TextInput,
-  Button,
-  StyleSheet,
   ScrollView,
   RefreshControl
 } from 'react-native'
@@ -25,15 +22,6 @@ interface Conversation {
   user2_id: string
 }
 
-interface Message {
-  id: string
-  sender_id: string
-  recipient_id: string
-  content: string
-  timestamp: string // Use the appropriate type from your database
-  conversation_id: string
-}
-
 export default function ChatApp() {
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
@@ -44,7 +32,7 @@ export default function ChatApp() {
   const [diffUserAvatarUrl, setDiffUserAvatarUrl] = useState<string | ''>('')
 
   const [isLoading, setIsLoading] = useState(true)
-  const [otherUserData, setOtherUserData] = useState<any>(null) // Store data of the other user
+  const [otherUserData, setOtherUserData] = useState<any>(null)
 
   useEffect(() => {
     fetchSessionAndConversations()
@@ -82,8 +70,10 @@ export default function ChatApp() {
         const userData = await getUserData(otherUserId)
         setOtherUserData(userData)
       }
-      data[0].last_message_content = decrypt(data[0].last_message_content)
-      setConversations(data)
+      if (data.length > 0) {
+        data[0].last_message_content = decrypt(data[0].last_message_content)
+        setConversations(data)
+      }
     } catch (error) {
       console.error('Error fetching conversations or user data:', error)
     } finally {

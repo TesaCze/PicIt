@@ -5,8 +5,7 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView
+  StyleSheet
 } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { Ionicons } from '@expo/vector-icons'
@@ -87,24 +86,22 @@ function Comments({ post }: { post: any }) {
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.flatListContent}
         ListHeaderComponent={<Text style={styles.commentHeader}>Comments</Text>}
-        ListFooterComponent={
-          <>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.commentInput}
-                placeholder="Add a comment..."
-                value={newComment}
-                onChangeText={setNewComment}
-                multiline={true}
-              />
-
-              <TouchableOpacity onPress={handleAddComment}>
-                <Ionicons name={'send'} size={25} />
-              </TouchableOpacity>
-            </View>
-          </>
-        }
       />
+      <View style={{ alignContent: 'center' }}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Add a comment..."
+            value={newComment}
+            onChangeText={setNewComment}
+            multiline={true}
+          />
+
+          <TouchableOpacity onPress={handleAddComment}>
+            <Ionicons name={'send'} size={25} />
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   )
 }
@@ -142,7 +139,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
-    position: 'absolute', // Position at the bottom
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0
@@ -158,7 +155,7 @@ const styles = StyleSheet.create({
   },
   commentSubmitButton: {
     padding: 10,
-    backgroundColor: '#0095f6', // Instagram blue
+    backgroundColor: '#0095f6',
     color: '#fff',
     borderRadius: 20
   }

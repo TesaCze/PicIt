@@ -13,7 +13,6 @@ import { supabase } from '../lib/supabase' // Replace with your actual path
 import { Session } from '@supabase/supabase-js'
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet'
 import { KeyboardAvoidingView } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons'
 import { decrypt, encrypt } from './Cypher'
 

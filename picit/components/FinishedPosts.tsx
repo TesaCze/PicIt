@@ -1,4 +1,3 @@
-import { Session } from '@supabase/supabase-js'
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { View, Text, Image } from 'react-native'

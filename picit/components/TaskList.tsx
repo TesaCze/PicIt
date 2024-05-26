@@ -2,7 +2,6 @@ import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import {
   View,
-  Button,
   Alert,
   Text,
   RefreshControl,
@@ -18,12 +17,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 import { decode } from 'base64-arraybuffer'
 import * as FileSystem from 'expo-file-system'
 import { useFocusEffect } from '@react-navigation/native'
-import {
-  SCREEN_HEIGHT,
-  SCREEN_WIDTH,
-  WINDOW_HEIGHT,
-  WINDOW_WIDTH
-} from '@gorhom/bottom-sheet'
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet'
 
 import CameraComp from '../components/Camera'
 import { Ionicons } from '@expo/vector-icons'

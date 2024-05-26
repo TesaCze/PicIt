@@ -12,7 +12,7 @@ import {
 } from 'react-native'
 import { Session } from '@supabase/supabase-js'
 import DatePicker from '@react-native-community/datetimepicker'
-import moment from 'moment' // Import moment.js for date formatting
+import moment from 'moment'
 import React from 'react'
 import TaskList from '../../components/TaskList'
 
@@ -108,7 +108,7 @@ export default function CreateTask() {
 
       {hasDeadline && (
         <DatePicker
-          value={deadline ? new Date(deadline) : new Date()} // Handle empty deadline
+          value={deadline ? new Date(deadline) : new Date()}
           mode="date"
           display="default"
           onChange={(event, selectedDate) => {

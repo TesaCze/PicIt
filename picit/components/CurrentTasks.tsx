@@ -1,7 +1,6 @@
-import { Session } from '@supabase/supabase-js'
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { View, Text, Image } from 'react-native'
+import { View, Text } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { ScrollView } from 'react-native-gesture-handler'
 import moment from 'moment'

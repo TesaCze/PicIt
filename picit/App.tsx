@@ -1,20 +1,17 @@
 import 'react-native-url-polyfill/auto'
 import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
-import { View } from 'react-native'
 import { Session } from '@supabase/supabase-js'
 
 import Auth from './components/Auth'
-import Account from './components/Account'
 import MainContainer from './navigation/MainContainer'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import React from 'react'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
-
   const [isRegistered, setIsRegistered] = useState(false)
+
   const fetchUser = async () => {
     if (session) {
       const { data: user, error } = await supabase
@@ -42,6 +39,10 @@ export default function App() {
     })
   }, [])
 
+  const handleRegComplete = async () => {
+    setIsRegistered(true)
+  }
+
   return (
     <>
       {session && session.user && isRegistered && isRegistered != null ? (
@@ -49,7 +50,7 @@ export default function App() {
           <MainContainer session={session} key={session.user.id} />
         </GestureHandlerRootView>
       ) : (
-        <Auth />
+        <Auth onRegistrationComplete={handleRegComplete} />
       )}
     </>
   )

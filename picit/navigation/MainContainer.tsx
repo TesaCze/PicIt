@@ -1,19 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { StyleSheet, Text, View, Image, Button, Alert } from 'react-native'
+import { StyleSheet } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { NavigationContainer } from '@react-navigation/native'
-import {
-  createBottomTabNavigator,
-  BottomTabNavigationOptions
-} from '@react-navigation/bottom-tabs'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Session, User } from '@supabase/supabase-js'
-import * as Notifications from 'expo-notifications'
-
-import BottomSheet from '@gorhom/bottom-sheet'
 
 import { HomePage } from './screens/HomePage'
 import AccountPage from './screens/AccountPage'
-import UpdateProfile from '../components/UpdateProfile'
 import CreateTaskPage from './screens/CreateTastPage'
 import ChatScreenPage from './screens/ChatScreenPage'
 
@@ -33,7 +26,6 @@ type MainContainerProps = {
 }
 
 export default function MainContainer({ session }: { session: Session }) {
-  const bottomSheetRef = useRef(null)
   const [user, setUser] = useState<User | null>(session?.user || null)
 
   useEffect(() => {
@@ -64,29 +56,11 @@ export default function MainContainer({ session }: { session: Session }) {
           },
           tabBarActiveTintColor: '#2f95dc',
           tabBarInactiveTintColor: 'gray',
-          tabBarStyle: {
-            backgroundColor: '#f5f5f5',
-            borderTopWidth: 0,
-            height: 80,
-            paddingBottom: 30,
-            paddingTop: 5,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.3,
-            shadowRadius: 1,
-            elevation: 5
-          },
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '600'
-          },
-          headerStyle: {
-            backgroundColor: '#2f95dc'
-          },
+          tabBarStyle: styles.tabBarStyle,
+          tabBarLabelStyle: styles.tabBarLabelStyle,
+          headerStyle: styles.headerStyle,
           headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold'
-          }
+          headerTitleStyle: styles.headerTitleStyle
         })}>
         <Tab.Screen
           name={homeName}
@@ -105,3 +79,28 @@ export default function MainContainer({ session }: { session: Session }) {
     </NavigationContainer>
   )
 }
+
+const styles = StyleSheet.create({
+  tabBarStyle: {
+    backgroundColor: '#f5f5f5',
+    borderTopWidth: 0,
+    height: 80,
+    paddingBottom: 30,
+    paddingTop: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 1,
+    elevation: 5
+  },
+  tabBarLabelStyle: {
+    fontSize: 12,
+    fontWeight: '600'
+  },
+  headerStyle: {
+    backgroundColor: '#2f95dc'
+  },
+  headerTitleStyle: {
+    fontWeight: 'bold'
+  }
+})

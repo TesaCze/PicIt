@@ -1,19 +1,15 @@
 import { useState, useEffect } from 'react'
-import { View, TextInput, Text, Image, Modal, Button } from 'react-native'
+import { View, TextInput, Modal } from 'react-native'
 import { supabase } from '../../lib/supabase'
 import React from 'react'
-import { TouchableOpacity } from 'react-native-gesture-handler'
 import AccountPage from './AccountPage'
-import { Session } from '@supabase/supabase-js'
-import { SCREEN_HEIGHT } from '@gorhom/bottom-sheet'
 import { Ionicons } from '@expo/vector-icons'
 import SearchUser from '../../components/SearchUser'
 
 function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [users, setUsers] = useState<any[]>([])
-  const [selectedUser, setSelectedUser] = useState<any | null>(null) // [1]
-  const [session, setSession] = useState<Session | null>(null)
+  const [selectedUser, setSelectedUser] = useState<any | null>(null)
 
   useEffect(() => {
     if (searchTerm) {
@@ -21,9 +17,6 @@ function SearchPage() {
     } else {
       setUsers([])
     }
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
   }, [searchTerm])
 
   const fetchUsers = async (searchTerm: string): Promise<void> => {

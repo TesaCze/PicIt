@@ -2,32 +2,18 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import {
   StyleSheet,
-  View,
   Alert,
-  Button,
-  TextInput,
-  Text,
-  Image,
-  TouchableOpacity,
-  Linking,
-  Modal,
-  Pressable,
   ActivityIndicator,
   ScrollView,
   RefreshControl
 } from 'react-native'
-import { Session } from '@supabase/supabase-js'
 import * as ImagePicker from 'expo-image-picker'
 import { decode } from 'base64-arraybuffer'
-import moment from 'moment'
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs' // Use MaterialTopTabNavigator
-
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { ImagePickerResult, ImagePickerSuccessResult } from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import React from 'react'
 import { SCREEN_HEIGHT } from '@gorhom/bottom-sheet'
-import UpdateProfile from '../../components/UpdateProfile'
-import TaskList from '../../components/TaskList'
 import UserProfile from '../../components/UserProfile'
 import FinishedPosts from '../../components/FinishedPosts'
 import CurrentTasks from '../../components/CurrentTasks'
@@ -36,7 +22,6 @@ export default function AccountPage({ route }: { route: any }) {
   const { userId } = route.params
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any | null>(null)
-  const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -50,14 +35,13 @@ export default function AccountPage({ route }: { route: any }) {
         const { data, error } = await supabase
           .from('users')
           .select()
-          .eq('id', userId) // Fetch based on the userId
+          .eq('id', userId)
           .single()
 
         if (error) throw error
         setUser(data)
       } catch (error) {
         console.error('Error fetching user data:', error)
-        // Handle error gracefully
       } finally {
         setLoading(false)
       }
@@ -95,92 +79,6 @@ export default function AccountPage({ route }: { route: any }) {
     }
   }
 
-  async function updateProfile({
-    username,
-    website,
-    avatar_url
-  }: {
-    username: string
-    website: string
-    avatar_url: string
-  }) {
-    try {
-      setLoading(true)
-      if (!user) throw new Error('No user on the session!')
-
-      const updates = {
-        id: user.id,
-        username,
-        website,
-        avatar_url,
-        updated_at: new Date()
-      }
-
-      const { error } = await supabase.from('users').upsert(updates)
-
-      if (error) {
-        throw error
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const pickImage = async () => {
-    let result: ImagePickerResult = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1
-    })
-
-    if (!result.canceled) {
-      setImage({ uri: result.assets[0].uri })
-      console.log('Image picked:', result.assets[0].uri)
-    }
-
-    uploadImage()
-  }
-
-  const uploadImage = async () => {
-    if (image) {
-      const filePath = `${image.uri.split('/').pop()}`
-
-      const base64 = await FileSystem.readAsStringAsync(image.uri, {
-        encoding: FileSystem.EncodingType.Base64
-      })
-
-      if (base64) {
-        const { error } = await supabase.storage
-          .from('posts')
-          .upload(filePath, decode(base64), {
-            contentType: 'image/jpeg',
-            upsert: true
-          })
-
-        if (error) {
-          console.error('Error uploading image:', error)
-        } else {
-          console.log('Image uploaded successfully')
-          const result = await supabase.storage
-            .from('posts')
-            .getPublicUrl(filePath)
-          if (error) {
-            console.error('Error getting image URL:', error)
-          } else {
-            setImageUrls([result.data.publicUrl])
-          }
-        }
-      } else {
-        console.error('Error reading image data')
-      }
-    }
-  }
-
   const getImagesFromSupabase = async (user: any) => {
     try {
       const { data, error } = await supabase.storage.from('posts').list()
@@ -199,16 +97,6 @@ export default function AccountPage({ route }: { route: any }) {
     } catch (error) {
       console.error('Error fetching images:', error)
       return []
-    }
-  }
-
-  const logout = async () => {
-    try {
-      await supabase.auth.signOut()
-    } catch (error) {
-      console.log('Error logging out:')
-    } finally {
-      localStorage.clear()
     }
   }
 

@@ -5,14 +5,11 @@ import {
   View,
   Alert,
   Text,
-  Image,
   Modal,
-  Pressable,
   Dimensions,
   ScrollView,
   RefreshControl
 } from 'react-native'
-import { Session, User } from '@supabase/supabase-js'
 import Post from '../../components/Post'
 import React from 'react'
 import BottomSheet, {
@@ -24,26 +21,9 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import AccountPage from './AccountPage'
 
 function HomePage({ route }: { route: any }) {
-  // Change route type to any
-
-  const [loading, setLoading] = useState(true)
-  const [name, setName] = useState('')
-  const [username, setUsername] = useState('')
-  const [website, setWebsite] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
   const [pullImg, setPullImg] = useState<string[]>([])
 
   const { session, user } = route.params
-
-  const postPush = {
-    url: '',
-    user_id: '',
-    task_name: '',
-    task_description: '',
-    task_image: '',
-    likes_count: 0,
-    comments_count: 0
-  }
 
   useEffect(() => {
     if (user) {
@@ -54,7 +34,6 @@ function HomePage({ route }: { route: any }) {
 
   async function getProfile() {
     try {
-      setLoading(true)
       if (!session?.user) throw new Error('No user on the session!')
 
       const { data, error, status } = await supabase
@@ -67,29 +46,18 @@ function HomePage({ route }: { route: any }) {
       if (error && status !== 406) {
         throw error
       }
-
-      if (data) {
-        setUsername(data.username)
-        setWebsite(data.website)
-        setAvatarUrl(data.avatar_url)
-        setName(data.name)
-      }
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert(error.message)
       }
-    } finally {
-      setLoading(false)
     }
   }
 
-  let files: string[] = []
   const getImagesFromSupabase = async () => {
     try {
       const { data: postsData, error: postsError } = await supabase
         .from('posts')
-        .select('*') // Select all columns from the 'posts' table
-
+        .select('*')
       if (postsError) {
         console.error('Error fetching posts:', postsError)
         return []
@@ -99,21 +67,20 @@ function HomePage({ route }: { route: any }) {
         postsData.map(async post => {
           const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('username, name, avatar_url') // Select relevant user data
-            .eq('id', post.user_id) // Filter by post's user_id
+            .select('username, name, avatar_url')
+            .eq('id', post.user_id)
             .single()
 
           if (userError) {
             console.error('Error fetching user data:', userError)
-            return null // Handle potential user data fetch errors
+            return null
           }
 
-          return { ...post, user: userData } // Combine post and user data
+          return { ...post, user: userData }
         })
       )
 
       const filteredPosts = postsWithUserData.filter(Boolean)
-      // sort the posts by the newest first
       filteredPosts.sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -124,10 +91,6 @@ function HomePage({ route }: { route: any }) {
       return []
     }
   }
-
-  const [modalVisible, setModalVisible] = useState(false)
-  const [modalImage, setModalImage] = useState<string | null>(null)
-
   const [refreshing, setRefreshing] = useState(false)
 
   const onRefresh = React.useCallback(() => {
@@ -195,28 +158,6 @@ function HomePage({ route }: { route: any }) {
           ))
         )}
       </ScrollView>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible)
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Image
-              source={{ uri: modalImage ?? '' }}
-              style={{ width: 300, height: 300 }}
-            />
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}>
-              <Text style={styles.textStyle}>Close</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}

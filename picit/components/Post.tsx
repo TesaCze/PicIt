@@ -4,13 +4,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   View,
-  Text,
-  Modal
+  Text
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { postStyle } from '../assets/styles/post'
 import { supabase } from '../lib/supabase'
-import AccountPage from '../navigation/screens/AccountPage'
 
 const icon = require('../assets/public/default-user-icon.jpg')
 
