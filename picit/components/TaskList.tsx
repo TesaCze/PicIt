@@ -138,7 +138,6 @@ export default function TaskList({ session }: { session: Session }) {
 
           const newPost = {
             user_id: session.user.id,
-            comment_count: 0,
             task_name: taskToFinish.name,
             task_image: result.data.publicUrl,
             task_description: taskToFinish.description,
